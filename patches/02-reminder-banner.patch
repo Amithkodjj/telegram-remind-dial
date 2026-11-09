@@ -1,0 +1,22 @@
+diff --git a/submodules/TelegramUI/Sources/ApplicationContext.swift b/submodules/TelegramUI/Sources/ApplicationContext.swift
+index 17119cc3..caf670eb 100644
+--- a/submodules/TelegramUI/Sources/ApplicationContext.swift
++++ b/submodules/TelegramUI/Sources/ApplicationContext.swift
+@@ -483,6 +483,17 @@ final class AuthorizedApplicationContext {
+                                                 }
+                                             }
+ 
++                                            if !processed, firstMessage.id.peerId == context.account.peerId, firstMessage.flags.contains(.WasScheduled), let source = firstMessage.attributes.compactMap({ $0 as? SourceReferenceMessageAttribute }).first {
++                                                processed = true
++                                                let _ = (context.engine.data.get(TelegramEngine.EngineData.Item.Peer.Peer(id: source.messageId.peerId))
++                                                |> deliverOnMainQueue).startStandalone(next: { peer in
++                                                    guard let peer else {
++                                                        return
++                                                    }
++                                                    strongSelf.context.sharedContext.navigateToChatController(NavigateToChatControllerParams(navigationController: strongSelf.rootController, context: strongSelf.context, chatLocation: .peer(peer), subject: .message(id: .id(source.messageId), highlight: ChatControllerSubject.MessageHighlight(quote: nil), timecode: nil, setupReply: false)))
++                                                })
++                                            }
++
+                                             if !processed {
+                                                 strongSelf.context.sharedContext.navigateToChatController(NavigateToChatControllerParams(navigationController: strongSelf.rootController, context: strongSelf.context, chatLocation: chatLocation))
+                                             }

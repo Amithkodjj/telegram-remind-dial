@@ -1,0 +1,33 @@
+diff --git a/submodules/TelegramUI/Sources/ChatController.swift b/submodules/TelegramUI/Sources/ChatController.swift
+--- a/submodules/TelegramUI/Sources/ChatController.swift
++++ b/submodules/TelegramUI/Sources/ChatController.swift
+@@ -259,6 +259,7 @@
+     let context: AccountContext
+     public internal(set) var chatLocation: ChatLocation
+     public internal(set) var subject: ChatControllerSubject?
++    var isRemindDialVisible = false
+     var initialTextInputState: ChatTextInputState?
+     
+     var botStart: ChatControllerInitialBotStart?
+@@ -7357,6 +7358,9 @@
+     }
+     
+     func updateStatusBarPresentation(animated: Bool = false) {
++        if self.isRemindDialVisible {
++            return
++        }
+         if !self.galleryPresentationContext.controllers.isEmpty, let statusBarStyle = (self.galleryPresentationContext.controllers.last?.0 as? ViewController)?.statusBar.statusBarStyle {
+             self.statusBar.updateStatusBarStyle(statusBarStyle, animated: animated)
+         } else {
+diff --git a/submodules/TelegramUI/Sources/ChatControllerNode.swift b/submodules/TelegramUI/Sources/ChatControllerNode.swift
+--- a/submodules/TelegramUI/Sources/ChatControllerNode.swift
++++ b/submodules/TelegramUI/Sources/ChatControllerNode.swift
+@@ -1299,7 +1299,7 @@
+         transition.updateFrame(node: self.wrappingNode, frame: CGRect(origin: CGPoint(x: -self.sideListOffset, y: 0.0), size: layout.size))
+         self.wrappingNode.update(size: layout.size, cornerRadius: layout.deviceMetrics.screenCornerRadius, transition: ComponentTransition(transition))
+         
+-        if let statusBar = self.statusBar {
++        if let statusBar = self.statusBar, self.controller?.isRemindDialVisible != true {
+             switch self.chatPresentationInterfaceState.mode {
+             case .standard:
+                 if self.inputPanelContainerNode.expansionFraction > 0.3 {
